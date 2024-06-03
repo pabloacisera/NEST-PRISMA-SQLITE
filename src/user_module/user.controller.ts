@@ -1,28 +1,31 @@
-import { Controller, Post, Get, Put, Delete, Body, Param } from '@nestjs/common';
+// user.controller.ts
+import { Controller, Post, Get, Put, Delete, Body, Param, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserModuleService } from './user_module.service';
-import { User } from '@prisma/client';
+import { CreateUserDto } from './interface/user.interface'; // Importar el DTO
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userModuleService: UserModuleService) {}
 
   @Post()
-  async createUser(@Body() data: User) {
-    return this.userModuleService.createUser(data);
+  @UsePipes(new ValidationPipe({ transform: true })) 
+  async createUser(@Body() createUserDto: CreateUserDto) { 
+    return this.userModuleService.createUser(createUserDto); 
   }
 
   @Get(':id')
-  async getUserById(@Param('id') id: string) { // @Param('id') para obtener el parámetro id correctamente
-    return this.userModuleService.getUserById(Number(id)); // Number(id) transforma el str en number
+  async getUserById(@Param('id') id: string) {
+    return this.userModuleService.getUserById(Number(id));
   }
 
   @Delete(':id')
-  async deleteUserById(@Param('id') id: string) { // @Param('id') para obtener el parámetro id correctamente
+  async deleteUserById(@Param('id') id: string) {
     return this.userModuleService.deleteUser(Number(id));
   }
 
   @Put(':id')
-  async updateUserById(@Param('id') id: string, @Body() data: User) { // @Param('id') para obtener el parámetro id correctamente
-    return this.userModuleService.updateUser(Number(id), data);
+  @UsePipes(new ValidationPipe({ transform: true })) 
+  async updateUserById(@Param('id') id: string, @Body() updateUserDto: CreateUserDto) { 
+    return this.userModuleService.updateUser(Number(id), updateUserDto); 
   }
 }

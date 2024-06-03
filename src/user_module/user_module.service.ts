@@ -1,6 +1,8 @@
+// user_module.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
+import { CreateUserDto } from './interface/user.interface'; 
 
 @Injectable()
 export class UserModuleService {
@@ -13,28 +15,40 @@ export class UserModuleService {
 
     if (!userFound) {
       throw new NotFoundException({
-        message: 'usuario no encontrado',
+        message: 'Usuario no encontrado',
       });
     }
 
     return userFound;
   }
 
-  async createUser(data: User): Promise<User> {
-    const newUser = await this.prisma.user.create({ data });
-    return newUser;
+  async createUser(data: CreateUserDto): Promise<User> {
+    try {
+      const newUser = await this.prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          area: data.area,
+        },
+      });
+      return newUser;
+    } catch (error) {
+      // Manejo de errores
+      throw new Error('Error al crear usuario');
+    }
   }
 
-  async updateUser(id: number, data: User): Promise<User> {
+  async updateUser(id: number, data: CreateUserDto): Promise<User> {
     try {
       const userUpdate = await this.prisma.user.update({
         where: { id: id },
-        data: data,
+        data: { ...data },
       });
 
       if (!userUpdate) {
         throw new NotFoundException({
-          message: 'usuario no encontrado para actualizar',
+          message: 'Usuario no encontrado para actualizar',
         });
       }
 
