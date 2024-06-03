@@ -1,30 +1,15 @@
-import { Controller, Get, Post, Put, Delete} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Request, Response, Res } from '@nestjs/common';
 import { UserModuleService } from './user_module.service';
+import { User } from './interface/user.interface';
 
-@Controller('')
+@Controller('user')
 export class UserController {
-  constructor(private userModuleService: UserModuleService) {}
-
-  @Get('/userId')
-  getUserId() {
-    return this.userModuleService.getUserId();
-  }
+  constructor(private readonly UserModuleService: UserModuleService) {}
 
   @Post()
-  createUser(): string {
-    // implement create user logic
-    return 'User created successfully';
-  }
-
-  @Put()
-  updateUser(): string {
-    // implement update user logic
-    return 'User updated successfully';
-  }
-
-  @Delete()
-  deleteUser(): string {
-    // implement delete user logic
-    return 'User deleted successfully';
+  async createUser( @Body() userBody:User ) {
+    
+    let userCreated = await this.UserModuleService.createUser(userBody)
+    return userCreated;
   }
 }
