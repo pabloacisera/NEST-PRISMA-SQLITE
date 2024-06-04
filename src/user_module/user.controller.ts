@@ -1,7 +1,8 @@
 // user.controller.ts
 import { Controller, Post, Get, Put, Delete, Body, Param, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserModuleService } from './user_module.service';
-import { CreateUserDto } from './interface/user.interface'; // Importar el DTO
+import { CreateUserDto } from './interface/user.interface';
+import { loginUserDto } from './interface/loginUserDto'
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('user')
@@ -9,10 +10,16 @@ import { ApiTags } from '@nestjs/swagger';
 export class UserController {
   constructor(private readonly userModuleService: UserModuleService) {}
 
-  @Post()
+  @Post('register')
   @UsePipes(new ValidationPipe({ transform: true })) 
   async createUser(@Body() createUserDto: CreateUserDto) { 
     return this.userModuleService.createUser(createUserDto); 
+  }
+
+  @Post('login')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async loginUser(@Body() loginUserDto: loginUserDto){
+    return this.userModuleService.loginUser(loginUserDto)
   }
 
   @Get(':id')
