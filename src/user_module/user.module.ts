@@ -1,7 +1,19 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './user.controller'
+import { UserController } from './user.controller';
 import { UserModuleService } from './user_module.service';
-import { PrismaModule } from 'prisma/prisma.module';
+import { PrismaModule } from 'prisma/prisma.module'; // Verifica esta ruta
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './jwt.constants';
 
-@Module({ controllers: [UserController], providers: [UserModuleService], imports:[PrismaModule]})
-export class userModule {}
+@Module({
+  imports: [
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '8h' },
+    }),
+    PrismaModule,
+  ],
+  controllers: [UserController],
+  providers: [UserModuleService],
+})
+export class UserModule {}

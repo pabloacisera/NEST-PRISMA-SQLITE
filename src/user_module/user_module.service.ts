@@ -6,10 +6,13 @@ import { CreateUserDto } from './interface/user.interface';
 import { loginUserDto } from './interface/loginUserDto';
 import { hash } from 'bcrypt';
 import bcrypt from 'bcrypt'
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserModuleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService,
+    private jwtService: JwtService
+  ) {}
 
   async getUserById(id: number): Promise<User> {
     const userFound = await this.prisma.user.findUnique({
@@ -46,18 +49,23 @@ export class UserModuleService {
   }
 
   async updateUser(id: number, data: CreateUserDto): Promise<User> {
+    if (data.password) {
+      const hashedPassword = await hash(data.password, 10);
+      data.password = hashedPassword;
+    }
+  
     try {
       const userUpdate = await this.prisma.user.update({
         where: { id: id },
         data: { ...data },
       });
-
+  
       if (!userUpdate) {
         throw new NotFoundException({
           message: 'Usuario no encontrado para actualizar',
         });
       }
-
+  
       return userUpdate;
     } catch (error) {
       throw new NotFoundException({
@@ -99,12 +107,50 @@ export class UserModuleService {
       if (!isValidPassword) {
         throw new NotFoundException({ message: 'La contraseña proporcionada no es correcta' });
       }
-  
-      return userFound;
+
+      const payload = {
+        id: userFound.id,
+        name:userFound.name,
+      }
+
+      const token = await this.jwtService.sign(
+        payload,
+      )
+
+      const data = {
+        user: userFound,
+        token: token
+      }
+      return data;
   
     } catch (error) {
-      throw error; // Propagar el error
+      throw error; 
     }
   }
+
+  async patchUser(id: number, data: Partial<CreateUserDto>): Promise<User> {
+    if (data.password) {
+      const hashedPassword = await hash(data.password, 10);
+      data.password = hashedPassword;
+    }
   
+    try {
+      const userUpdate = await this.prisma.user.update({
+        where: { id: id },
+        data: { ...data },
+      });
+  
+      if (!userUpdate) {
+        throw new NotFoundException({
+          message: 'Usuario no encontrado para actualizar',
+        });
+      }
+  
+      return userUpdate;
+    } catch (error) {
+      throw new NotFoundException({
+        message: 'Error actualizando el usuario',
+      });
+    }
+  }
 }
