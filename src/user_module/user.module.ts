@@ -4,6 +4,7 @@ import { UserModuleService } from './user_module.service';
 import { PrismaModule } from 'prisma/prisma.module'; // Verifica esta ruta
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './jwt.constants';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { jwtConstants } from './jwt.constants';
     PrismaModule,
   ],
   controllers: [UserController],
-  providers: [UserModuleService],
+  providers: [UserModuleService, JwtStrategy],
 })
 export class UserModule {}
