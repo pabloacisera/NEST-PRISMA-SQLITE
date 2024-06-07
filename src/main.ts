@@ -1,20 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { CustomLogger } from './winston/logger.service'
+import { CustomLogger } from './user_module/logger-morgan-winston/CustomLogger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: new CustomLogger()
-  });
+  const app = await NestFactory.create(AppModule);
 
-  const config= new DocumentBuilder()
-    .setTitle('HealthCenter')
-    .setDescription('API description')
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
     .setVersion('1.0')
-    .build()
-  const document= SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('api', app, document)
+    .addTag('cats')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
 }
